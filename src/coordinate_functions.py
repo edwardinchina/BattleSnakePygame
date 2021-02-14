@@ -8,7 +8,7 @@ def move(p,v):
 # scale grid to screen.
 # this is useful to make a 10x10 grid big enough to see
 def scale(p,s):
-    return tuple(map(lambda x: x**s,p))
+    return tuple(map(lambda x: x*s,p))
 
 ## TESTING
 

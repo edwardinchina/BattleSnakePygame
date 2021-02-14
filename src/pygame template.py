@@ -1,18 +1,9 @@
 import pygame
 import random
-#import coordinate_functions
-
+import color as c
+from coordinate_functions import move, scale
 ## helper functions
 #  These do simple math on tuples (x,y)
-
-# move point p by velocity v
-def move(p,v):
-    return tuple(map(lambda x,y: x+y,p,v))
-
-# scale grid to screen.
-# this is useful to make a 10x10 grid big enough to see
-def scale(p,s):
-    return tuple(map(lambda x: x*s,p))
 
 
 class Snake(object):
@@ -90,23 +81,13 @@ screen_height = world_height * world_scale
 screen = pygame.display.set_mode((screen_width,screen_height)) 
 
 
-# Initialing Color 
-red = (255,0,0) 
-green = (0,255,0) 
-blue = (0,0,255)
-yellow = (255,255,0)
-white = (255,255,255)
-black = (0,0,0)
-gray = (150,150,150)
-brown = (150,75,0)
+player = Snake((20,15),(21,15),c.red)
 
-player = Player((20,15),(21,15),red)
-
-AI_Snakes = [Snake((30,15),(31,15),green),
-             Snake((40,15),(41,15),blue),
-             Snake((50,15),(51,15),yellow),
-             Snake((60,15),(61,15),black),
-             Snake((70,15),(71,15),white)]
+AI_Snakes = [Snake((30,15),(31,15),c.green),
+             Snake((40,15),(41,15),c.blue),
+             Snake((50,15),(51,15),c.yellow),
+             Snake((60,15),(61,15),c.black),
+             Snake((70,15),(71,15),c.white)]
 
 food = []
 squirrels = []
@@ -114,7 +95,7 @@ squirrels = []
 timer = 0
 
 while(True):
-    screen.fill(gray)
+    screen.fill(c.gray)
         
     ev = pygame.event.poll()    # Look for any event
     if ev.type == pygame.QUIT:  # Window close button clicked?
