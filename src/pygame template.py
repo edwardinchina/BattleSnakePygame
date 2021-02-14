@@ -1,5 +1,6 @@
 import pygame
 import random
+#import coordinate_functions
 
 ## helper functions
 #  These do simple math on tuples (x,y)
@@ -42,25 +43,52 @@ class Snake(object):
             self.grow = False
         
     def draw(self,screen):
+        #scale
+        x,y = scale(self.head,world_scale)
         
-        x,y = scale(self.head,10)
-        
-        headBox = pygame.Rect(x, y, 10, 10)
+        headBox = pygame.Rect(x, y, world_scale, world_scale)
         
         
         pygame.draw.rect(screen, self.color, headBox)
         
         for t in self.tail:
-            tBox = pygame.Rect(*scale(t,10), 10, 10)
+            tBox = pygame.Rect(*scale(t,world_scale), world_scale, world_scale)
             pygame.draw.rect(screen, self.color, tBox)
-             
-      
+
+
+class Player(Snake):
+    def update(self,food):
+        keys = pygame.key.get_pressed()
+        x = 0
+        y = 0
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            x = 1
+
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            x = -1
+        
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            y = 1
+
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            y = -1
+
+        super().update((x,y),food)
+
+
+## Set Up Global Variables
 pygame.init() 
 clock = pygame.time.Clock()
 
-screen_width = 1600
-screen_height = 1200
+
+world_scale = 15
+world_width = 50
+world_height = 30
+
+screen_width =  world_width * world_scale
+screen_height = world_height * world_scale
 screen = pygame.display.set_mode((screen_width,screen_height)) 
+
 
 # Initialing Color 
 red = (255,0,0) 
@@ -72,7 +100,7 @@ black = (0,0,0)
 gray = (150,150,150)
 brown = (150,75,0)
 
-player = Snake((20,15),(21,15),red)
+player = Player((20,15),(21,15),red)
 
 AI_Snakes = [Snake((30,15),(31,15),green),
              Snake((40,15),(41,15),blue),
@@ -95,30 +123,28 @@ while(True):
     
     ## food
     if timer == 0:
-        x = random.randint(0, screen_width/10)
-        y = random.randint(0, screen_height/10)
+        x = random.randint(0, world_width)
+        y = random.randint(0, world_height)
         food.append((x,y))
         
         
-        x = random.randint(0, screen_width/10)
-        y = random.randint(0, screen_height/10)
+        x = random.randint(0, world_width)
+        y = random.randint(0, world_height)
         squirrels.append((x,y))
         
     
     for rat in food:
-        ratBox = pygame.Rect(*scale(rat,10), 10, 10)
+        ratBox = pygame.Rect(*scale(rat,world_scale), world_scale, world_scale)
         pygame.draw.rect(screen, brown, ratBox)
     
     
     for s in squirrels:
-        sBox = pygame.Rect(*scale(s,10), 10, 10)
+        sBox = pygame.Rect(*scale(s,world_scale), world_scale, world_scale)
         pygame.draw.rect(screen, white, sBox)
-    
-    v = random.choice([(-1, 0),(1, 0),(0, -1),(0, 1)])
     
     if len(player.tail) < 100:
         player.grow = True
-    player.update(v,food)
+    player.update(food)   #don't pass v to player, player has controls
     player.draw(screen)
 
     for ai in AI_Snakes:
