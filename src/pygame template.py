@@ -11,6 +11,9 @@ class Snake(object):
     tail = [(0,1)]
     
     grow = False
+    dying = False
+    death_timer = 3
+    dead = False
     
     def __init__(self, p1, p2, color):
         self.head = p1
@@ -18,21 +21,40 @@ class Snake(object):
         self.color = color
 
     def update(self,v,food):
-        self.tail.insert(0,self.head) #old head become being of tail
-        self.head = move(self.head,v) #new head is old head + v
+        # move
+        if not self.dying:
+            self.tail.insert(0,self.head) #old head become being of tail
+            self.head = move(self.head,v) #new head is old head + v
         
-        
+        # food
         for rat in food:
             if(self.head == rat):
                 food.remove(rat)
                 self.grow = True
                 print(len(self.tail))
-        
-        if(not self.grow):
-            self.tail.pop() #removes last part of tail
-        else:
-            self.grow = False
-        
+
+        if not v == (0,0):
+            if(not self.grow):
+                self.tail.pop() #removes last part of tail
+            else:
+                self.grow = False
+
+        # death
+        for t in self.tail:
+            if t == self.head:
+                self.die()
+
+        if self.dying:
+            self.death_timer -= 1
+            self.color
+            if self.death_timer == 0:
+                self.dead = True
+                
+
+    def die(self):
+        self.dying = True
+        self.death_timer = 3
+    
     def draw(self,screen):
         #scale
         x,y = scale(self.head,world_scale)
@@ -81,7 +103,7 @@ screen_height = world_height * world_scale
 screen = pygame.display.set_mode((screen_width,screen_height)) 
 
 
-player = Snake((20,15),(21,15),c.red)
+player = Player((20,15),(21,15),c.red)
 
 AI_Snakes = [Snake((30,15),(31,15),c.green),
              Snake((40,15),(41,15),c.blue),
@@ -103,10 +125,14 @@ while(True):
     
     
     ## food
+    timer += 1
+    timer %= 10
     if timer == 0:
         x = random.randint(0, world_width)
         y = random.randint(0, world_height)
         food.append((x,y))
+        
+        
         
         
         x = random.randint(0, world_width)
@@ -116,12 +142,12 @@ while(True):
     
     for rat in food:
         ratBox = pygame.Rect(*scale(rat,world_scale), world_scale, world_scale)
-        pygame.draw.rect(screen, brown, ratBox)
+        pygame.draw.rect(screen, c.brown, ratBox)
     
     
     for s in squirrels:
         sBox = pygame.Rect(*scale(s,world_scale), world_scale, world_scale)
-        pygame.draw.rect(screen, white, sBox)
+        pygame.draw.rect(screen, c.white, sBox)
     
     if len(player.tail) < 100:
         player.grow = True
@@ -129,17 +155,24 @@ while(True):
     player.draw(screen)
 
     for ai in AI_Snakes:
-        v = random.choice([(-1, 0),(1, 0),(0, -1),(0, 1)])
-        if len(ai.tail) < 100:
-            ai.grow = True
-        ai.update(v,food)
-        ai.draw(screen)
+        if ai.dead:
+            AI_Snakes.remove(ai)
+        else:
+            v = random.choice([(-1, 0),(1, 0),(0, -1),(0, 1)])
+            if len(ai.tail) < 100:
+                ai.grow = True
+            ai.update(v,food)
+            ai.draw(screen)
     
     pygame.display.flip()
     
     
     clock.tick(50)
-    timer += 1
-    timer %= 3
+    
+    
 #end while
 pygame.quit()
+
+
+
+# The End
